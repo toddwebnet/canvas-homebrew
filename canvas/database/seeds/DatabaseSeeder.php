@@ -26,24 +26,6 @@ class DatabaseSeeder extends Seeder
 
             )
         ");
-        $familyId = DB::select('select max(id) as id from families')[0]->id;
-
-        $students = [
-            [$familyId, 'Gavin', 'Todd', 'Morton Ranch High', '12'],
-            [$familyId, 'Abigail', 'Todd', 'Morton Ranch High', '9'],
-            [$familyId, 'Carolyn', 'Todd', 'McDonald Jr High', '8'],
-            [$familyId, 'Bethany', 'Todd', 'McDonald Jr High', '6'],
-        ];
-        foreach ($students as $student) {
-            DB::insert("
-            insert into students
-            (
-            family_id, first_name, last_name, school, grade, created_at, updated_at
-            )
-            values
-            (?,?,?,?,?, now(), now())
-        ", $student);
-        }
 
         /**
          * $table->unsignedBigInteger('family_id');

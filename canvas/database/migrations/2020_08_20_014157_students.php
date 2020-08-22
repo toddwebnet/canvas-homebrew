@@ -14,13 +14,13 @@ class Students extends Migration
     public function up()
     {
         Schema::create('students', function (Blueprint $table) {
-            $table->id();
+            $table->unsignedBigInteger('id');
             $table->unsignedBigInteger('family_id');
-            $table->string('first_name');
-            $table->string('last_name');
-            $table->string('school');
-            $table->string('grade');
+            $table->string('name');
+            $table->string('school')->nullable();
+            $table->string('grade')->nullable();
             $table->timestamps();
+            $table->primary('id');
             $table->foreign('family_id')->references('id')->on('families');
 
         });

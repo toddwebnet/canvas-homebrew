@@ -16,22 +16,42 @@ class CanvasApi extends BaseApi
         parent::__construct($baseUrl);
     }
 
-    public function getCourses()
+    public function getPagedData($endPoint, $params = [])
     {
-        $endpoint = 'api/v1/courses';
-        $params = [
-            'per_page' => 10,
-            'page' => 1
-        ];
+        $params = array_merge(
+            $params,
+            [
+                'per_page' => 10,
+                'page' => 1
+            ]
+        );
         $data = [];
         do {
-            $response = $this->call('GET', $endpoint, $params);
+            $response = $this->call('GET', $endPoint, $params);
             $thisData = json_decode($this->getResponseContent($response));
             $data = array_merge($data, $thisData);
             $params['page']++;
         } while (count($thisData) > 0);
         return $data;
+    }
 
+    public function getMyKids()
+    {
+        $endPoint = "api/v1/users/self/observees";
+        return $this->getPagedData($endPoint);
+
+    }
+
+    public function getCourses()
+    {
+        $endPoint = 'api/v1/courses';
+        return $this->getPagedData($endPoint);
+    }
+
+    public function getStudentCourses($studentId)
+    {
+        $endPoint = "api/v1/users/{$studentId}/courses";
+        return $this->getPagedData($endPoint);
     }
 
     public function getActivitiyStream($courseId)
@@ -57,16 +77,6 @@ class CanvasApi extends BaseApi
     public function getUserSelf()
     {
         $endPoint = "api/v1/users/self";
-    }
-
-    public function getMyKids()
-    {
-        $endPoint = "api/v1/users/self/observees";
-    }
-
-    public function getStudentCourses($studentId)
-    {
-        $endPoint = "api/v1/users/{$studentId}/courses";
     }
 
     public function getStudentAssignments($courseId, $studentId)

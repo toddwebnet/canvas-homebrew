@@ -14,15 +14,15 @@ class Courses extends Migration
     public function up()
     {
         Schema::create('courses', function (Blueprint $table) {
-            $table->id();
+            $table->unsignedBigInteger('id');
             $table->unsignedBigInteger('student_id')->nullable();
-            $table->unsignedBigInteger('canvas_id')->unique();
             $table->string('name');
             $table->string('code');
             $table->string('uuid');
             $table->dateTimeTz('start_at');
             $table->string('calendar')->nullable();
             $table->timestamps();
+            $table->primary('id');
         });
     }
 
