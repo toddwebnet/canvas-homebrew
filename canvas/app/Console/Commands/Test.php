@@ -1,12 +1,8 @@
 <?php
 namespace App\Console\Commands;
 
-use App\Services\Api\CanvasApi;
+use App\Models\Student;
 use App\Services\CanvasImportService;
-use App\Services\Providers\AppSessionProvider;
-use Carbon\Carbon;
-use GuzzleHttp\Psr7\Response;
-use GuzzleHttp\Psr7\Stream;
 use Illuminate\Console\Command;
 
 class Test extends Command
@@ -18,8 +14,17 @@ class Test extends Command
 
         /** @var CanvasImportService $canvasImportService */
         $canvasImportService = CanvasImportService::instance();
-        $canvasImportService->importStudents();
-        $canvasImportService->importStudentCourses();
+
+
+//        $this->line('Importing Students');
+//        $canvasImportService->importStudents();
+//
+//        foreach (Student::all() as $student) {
+//            $this->line("Importing Courses for {$student->name}");
+//            $canvasImportService->importCourses($student->id);
+//        }
+
+        $canvasImportService->getCourseModules(366868, 351835);
 
     }
 }

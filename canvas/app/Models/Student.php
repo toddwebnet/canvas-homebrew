@@ -13,4 +13,7 @@ class Student extends Model
         'school',
         'grade'
     ];
+    public function courses(){
+        return $this->hasMany(Course::class);
+    }
 }

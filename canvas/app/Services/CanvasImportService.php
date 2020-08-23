@@ -50,16 +50,8 @@ class CanvasImportService
 
     }
 
-    public function importStudentCourses()
-    {
-        foreach(Student::all() as $student){
-            $this->importCourses($student->id);
-        }
-    }
-
     public function importCourses($studentId)
     {
-
         $courses = $this->canvasApi->getStudentCourses($studentId);
 
         foreach ($courses as $course) {
@@ -73,15 +65,30 @@ class CanvasImportService
                 $calendar = null;
             }
             $courseData = [
-                'id' => $course->id,
+                'course_id' => $course->id,
                 'student_id' => $studentId,
                 'name' => $course->name,
                 'code' => $course->course_code,
                 'uuid' => $course->uuid,
-                'start_at' => Carbon::make($course->start_at),
                 'calendar' => $calendar
             ];
-            Course::updateOrCreate($courseData);
+            $course = Course::where('course_id', $courseData['course_id'])
+                ->where('student_id', $studentId)
+                ->first();
+            if ($course == null) {
+                Course::create($courseData);
+            } else {
+                dd($course->toArray());
+                Course::where('id', $course->id)->update($courseData);
+
+            }
+
         }
+    }
+
+    public function getCourseModules($courseId, $studentId)
+    {
+        $modules = $this->canvasApi->getModlules($courseId, $studentId);
+        dd($modules);
     }
 }

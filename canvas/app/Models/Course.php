@@ -7,12 +7,11 @@ use Illuminate\Database\Eloquent\Model;
 class Course extends Model
 {
     protected $fillable = [
-        'id',
+        'course_id',
         'student_id',
         'name',
         'code',
         'uuid',
-        'start_at',
         'calendar'
     ];
 }

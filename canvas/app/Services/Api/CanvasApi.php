@@ -57,11 +57,15 @@ class CanvasApi extends BaseApi
     public function getActivitiyStream($courseId)
     {
         $endPoint = "api/v1/courses/{$courseId}/activity_stream";
+        return $this->getPagedData($endPoint);
+
     }
 
-    public function getModlules($courseId)
+    public function getModlules($courseId, $studentId)
     {
         $endPoint = "api/v1/courses/{$courseId}/modules";
+        $params = ['student_id'=>$studentId];
+        return $this->getPagedData($endPoint, $params);
     }
 
     public function getAssignments($courseId)
@@ -77,6 +81,7 @@ class CanvasApi extends BaseApi
     public function getUserSelf()
     {
         $endPoint = "api/v1/users/self";
+        return $this->getPagedData($endPoint);
     }
 
     public function getStudentAssignments($courseId, $studentId)
