@@ -2,6 +2,8 @@
 
 namespace App\Services;
 
+use App\Models\Assignment;
+use App\Models\AssignmentStatus;
 use App\Models\Course;
 use App\Models\Student;
 use App\Services\Api\CanvasApi;
@@ -78,7 +80,6 @@ class CanvasImportService
             if ($course == null) {
                 Course::create($courseData);
             } else {
-                dd($course->toArray());
                 Course::where('id', $course->id)->update($courseData);
 
             }
@@ -88,7 +89,84 @@ class CanvasImportService
 
     public function getCourseModules($courseId, $studentId)
     {
-        $modules = $this->canvasApi->getModlules($courseId, $studentId);
+        $modules = $this->canvasApi->getModules($courseId, $studentId);
         dd($modules);
+    }
+
+    public function getAssignments($courseId, $studentId)
+    {
+        $this->currentStatuses = [];
+        $buckets = ['upcoming', 'overdue', 'unsubmitted'];
+
+        foreach ($buckets as $bucket) {
+            $defaultMaxPages = $this->canvasApi->maxPages;
+            $this->canvasApi->maxPages = 10;
+            $assignments = $this->canvasApi->getStudentAssignments($courseId, $studentId, $bucket);
+            $this->canvasApi->maxPages = $defaultMaxPages;
+            $this->processNewAssignments($courseId, $studentId, $assignments, $bucket);
+        }
+
+    }
+
+    public function processNewAssignments($courseId, $studentId, $assignments, $bucket)
+    {
+        $date = date("Y-m-d", time());
+        foreach ($assignments as $assignment) {
+            $assignmentData = [
+                'assignment_id' => $assignment->id,
+                'course_id' => $courseId,
+                'student_id' => $studentId,
+                'name' => $assignment->name,
+                'due_at' => Carbon::make($assignment->due_at)
+            ];
+            $assignment = Assignment::where(
+                [
+                    'assignment_id' => $assignment->id,
+                    'course_id' => $courseId,
+                    'student_id' => $studentId,
+                ]
+            )->first();
+            if ($assignment === null) {
+                $assignment = Assignment::create($assignmentData);
+            } else {
+                $assignment->update($assignmentData);
+            }
+            $this->updateAssignmentStatus($assignment, $bucket, $date);
+        }
+    }
+
+    private $currentStatuses = [];
+
+    private function updateAssignmentStatus($assignment, $bucket, $date)
+    {
+        if (!array_key_exists($assignment->id, $this->currentStatuses)) {
+
+            AssignmentStatus::where([
+                'assignment_id' => $assignment->id,
+                'download_date' => $date
+            ])->delete();
+
+            AssignmentStatus::where([
+                'assignment_id' => $assignment->id,
+                'latest' => true
+            ])->update(['latest' => false]);
+
+            $this->currentStatuses[$assignment->id] = AssignmentStatus::create([
+                'assignment_id' => $assignment->id,
+                'download_date' => $date
+            ]);
+        }
+
+        if ($bucket == 'overdue') {
+            $this->currentStatuses[$assignment->id]->overdue_flag = true;
+            $this->currentStatuses[$assignment->id]->save();
+        }
+
+        if ($bucket == 'unsubmitted') {
+            $this->currentStatuses[$assignment->id]->overdue_flag = true;
+            $this->currentStatuses[$assignment->id]->save();
+        }
+
+
     }
 }

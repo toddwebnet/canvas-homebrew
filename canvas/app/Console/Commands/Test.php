@@ -1,4 +1,5 @@
 <?php
+
 namespace App\Console\Commands;
 
 use App\Models\Student;
@@ -24,7 +25,15 @@ class Test extends Command
 //            $canvasImportService->importCourses($student->id);
 //        }
 
-        $canvasImportService->getCourseModules(366868, 351835);
+        foreach (Student::all() as $student) {
+            $this->line('Assignments for: ' . $student->name);
+            foreach ($student->courses as $course) {
+                $this->line('Course: ' . $course->name);
+                $canvasImportService->getAssignments($course->course_id, $course->student_id);
+            }
+            $this->line('');
+        }
+
 
     }
 }

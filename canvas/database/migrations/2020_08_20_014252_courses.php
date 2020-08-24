@@ -16,12 +16,14 @@ class Courses extends Migration
         Schema::create('courses', function (Blueprint $table) {
             $table->id();
             $table->unsignedBigInteger('course_id');
-            $table->unsignedBigInteger('student_id')->nullable();
+            $table->unsignedBigInteger('student_id');
             $table->string('name');
             $table->string('code');
             $table->string('uuid');
             $table->string('calendar')->nullable();
             $table->timestamps();
+            $table->foreign('student_id')->references('id')->on('students');
+            $table->index('course_id');
         });
     }
 

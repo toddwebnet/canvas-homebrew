@@ -8,6 +8,8 @@ class CanvasApi extends BaseApi
 {
     use Singleton;
 
+    public $maxPages = 3;
+
     public function __construct()
     {
         $baseUrl = env('CANVAS_API_URL');
@@ -15,6 +17,7 @@ class CanvasApi extends BaseApi
         $this->baseHeaders["Authorization"] = "Bearer {$accessToken}";
         parent::__construct($baseUrl);
     }
+
 
     public function getPagedData($endPoint, $params = [])
     {
@@ -26,12 +29,14 @@ class CanvasApi extends BaseApi
             ]
         );
         $data = [];
+        $pageCount = 0;
         do {
+            $pageCount++;
             $response = $this->call('GET', $endPoint, $params);
             $thisData = json_decode($this->getResponseContent($response));
             $data = array_merge($data, $thisData);
             $params['page']++;
-        } while (count($thisData) > 0);
+        } while (count($thisData) > 0 && $pageCount < $this->maxPages);
         return $data;
     }
 
@@ -61,10 +66,10 @@ class CanvasApi extends BaseApi
 
     }
 
-    public function getModlules($courseId, $studentId)
+    public function getModules($courseId, $studentId)
     {
         $endPoint = "api/v1/courses/{$courseId}/modules";
-        $params = ['student_id'=>$studentId];
+        $params = ['student_id' => $studentId];
         return $this->getPagedData($endPoint, $params);
     }
 
@@ -84,9 +89,15 @@ class CanvasApi extends BaseApi
         return $this->getPagedData($endPoint);
     }
 
-    public function getStudentAssignments($courseId, $studentId)
+    public function getStudentAssignments($courseId, $studentId, $bucket = null)
     {
         $endPoint = "api/v1/users/{$studentId}/courses/{$courseId}/assignments";
+        $params = [];
+        if ($bucket !== null) {
+            $params = ['bucket' => $bucket];
+        }
+        return $this->getPagedData($endPoint, $params);
+
     }
 
     public function getAssignment($courseId, $assignmentId)
