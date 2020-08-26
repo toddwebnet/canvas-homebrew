@@ -55,6 +55,8 @@ class BaseApi
         //Perform the request
         $client = $this->setClient();
         $response = $client->request($method, $path, $options);
+
+        // deal with $response->getHeader('X-Rate-Limit-Remaining')[] when <= 5;
         Log::info("API - Response:\n" . $this->getResponseContent($response)
         );
         return $response;

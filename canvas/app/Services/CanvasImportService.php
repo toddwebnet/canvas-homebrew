@@ -96,7 +96,7 @@ class CanvasImportService
     public function getAssignments($courseId, $studentId)
     {
         $this->currentStatuses = [];
-        $buckets = ['upcoming', 'overdue', 'unsubmitted'];
+        $buckets = ['upcoming', 'overdue', 'unsubmitted', 'future'];
 
         foreach ($buckets as $bucket) {
             $defaultMaxPages = $this->canvasApi->maxPages;

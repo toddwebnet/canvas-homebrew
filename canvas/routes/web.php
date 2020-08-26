@@ -13,3 +13,5 @@ use Illuminate\Support\Facades\Route;
 |
 */
 Route::get('/', 'AppController@index');
+Route::get('/assignments/{studentId}', 'AppController@assignments');
+Route::get('/assignments/{courseId}/{studentId}', 'AppController@assignments');

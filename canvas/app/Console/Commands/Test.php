@@ -24,6 +24,7 @@ class Test extends Command
 //            $this->line("Importing Courses for {$student->name}");
 //            $canvasImportService->importCourses($student->id);
 //        }
+//        return;
 
         foreach (Student::all() as $student) {
             $this->line('Assignments for: ' . $student->name);
